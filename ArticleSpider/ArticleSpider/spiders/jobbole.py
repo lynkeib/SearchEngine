@@ -7,6 +7,7 @@ import scrapy
 from scrapy import *
 import requests
 from ..items import JobBoleArticleItem
+from ..utils.common import *
 
 
 class JobboleSpider(scrapy.Spider):
@@ -63,6 +64,7 @@ class JobboleSpider(scrapy.Spider):
             article_item['create_date'] = create_date
             article_item['content'] = content
             article_item['tags'] = tags
+            article_item['url'] = response.url
             article_item['front_image_url'] = response.meta.get('front_image_url', '')
             # html = requests.get(parse.urljoin(response.url, f"/NewsAjax/GetAjaxNewsInfo?contentId={post_id}"))
             # j_data = json.loads(html.text)
@@ -89,6 +91,7 @@ class JobboleSpider(scrapy.Spider):
         article_item['praise_nums'] = praise_nums
         article_item['fav_nums'] = fav_nums
         article_item['comment_nums'] = comment_nums
+        article_item['url_object_id'] = get_md5(article_item['url'])
 
 
 
