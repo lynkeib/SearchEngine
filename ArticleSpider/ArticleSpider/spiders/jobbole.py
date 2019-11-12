@@ -6,6 +6,7 @@ import re
 import scrapy
 from scrapy import *
 import requests
+from ..items import JobBoleArticleItem
 
 
 class JobboleSpider(scrapy.Spider):
@@ -47,7 +48,10 @@ class JobboleSpider(scrapy.Spider):
 
         match_re = re.match(".*?(\d+)", response.url)
         if match_re:
+            article_item = JobBoleArticleItem()
+
             title = response.xpath('//div[@id="news_title"]/a/text()').extract_first("")
+
             create_date = response.xpath('//div[@id="news_info"]//span[@class="time"]/text()').extract_first("")
             content = response.xpath('//div[@id="news_content"]').extract()[0]
             tag_list = response.xpath('//div[@class="news_tags"]/a/text()').extract()
@@ -55,11 +59,16 @@ class JobboleSpider(scrapy.Spider):
 
             post_id = match_re.group(1)
 
+            article_item['title'] = title
+            article_item['create_date'] = create_date
+            article_item['content'] = content
+            article_item['tags'] = tags
+            article_item['front_image_url'] = response.meta.get('front_image_url', '')
             # html = requests.get(parse.urljoin(response.url, f"/NewsAjax/GetAjaxNewsInfo?contentId={post_id}"))
             # j_data = json.loads(html.text)
             nums_url = parse.urljoin(response.url, f"/NewsAjax/GetAjaxNewsInfo?contentId={post_id}")
             yield Request(url=parse.urljoin(response.url, nums_url),
-                          meta={},
+                          meta={'article_item': article_item},
                           callback=self.parse_nums)
 
             # praise_nums = j_data['DiggCount']
@@ -69,8 +78,18 @@ class JobboleSpider(scrapy.Spider):
             pass
 
     def parse_nums(self, response):
+
+        article_item = response.meta.get('article_item')
+
         j_data = json.loads(response.text)
         praise_nums = j_data['DiggCount']
         fav_nums = j_data['TotalViews']
         comment_nums = j_data['CommentCount']
+
+        article_item['praise_nums'] = praise_nums
+        article_item['fav_nums'] = fav_nums
+        article_item['comment_nums'] = comment_nums
+
+
+
         pass
