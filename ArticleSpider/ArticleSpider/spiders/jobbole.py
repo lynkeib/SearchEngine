@@ -93,6 +93,4 @@ class JobboleSpider(scrapy.Spider):
         article_item['comment_nums'] = comment_nums
         article_item['url_object_id'] = get_md5(article_item['url'])
 
-
-
-        pass
+        yield article_item
