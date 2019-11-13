@@ -1,3 +1,5 @@
 scrapy
 lxml
 twisted
+pillow
+requests

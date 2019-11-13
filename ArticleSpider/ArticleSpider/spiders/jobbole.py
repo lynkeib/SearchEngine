@@ -21,7 +21,7 @@ class JobboleSpider(scrapy.Spider):
         2. get the next page url
         '''
 
-        post_nodes = response.xpath('//div[@class="news_block"]')[:1]
+        post_nodes = response.xpath('//div[@class="news_block"]')[:5]
 
         for post_node in post_nodes:
             a = post_node
@@ -65,7 +65,7 @@ class JobboleSpider(scrapy.Spider):
             article_item['content'] = content
             article_item['tags'] = tags
             article_item['url'] = response.url
-            article_item['front_image_url'] = response.meta.get('front_image_url', '')
+            article_item['front_image_url'] = [response.meta.get('front_image_url', '')]
             # html = requests.get(parse.urljoin(response.url, f"/NewsAjax/GetAjaxNewsInfo?contentId={post_id}"))
             # j_data = json.loads(html.text)
             nums_url = parse.urljoin(response.url, f"/NewsAjax/GetAjaxNewsInfo?contentId={post_id}")
@@ -81,11 +81,11 @@ class JobboleSpider(scrapy.Spider):
 
     def parse_nums(self, response):
 
-        article_item = response.meta.get('article_item')
+        article_item = response.meta.get('article_item', "")
 
         j_data = json.loads(response.text)
         praise_nums = j_data['DiggCount']
-        fav_nums = j_data['TotalViews']
+        fav_nums = j_data['TotalView']
         comment_nums = j_data['CommentCount']
 
         article_item['praise_nums'] = praise_nums
