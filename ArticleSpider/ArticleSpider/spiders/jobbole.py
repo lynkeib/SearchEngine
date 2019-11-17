@@ -65,7 +65,11 @@ class JobboleSpider(scrapy.Spider):
             article_item['tags'] = tags
             article_item['url'] = response.url
             print('front_image_url is ', response.meta.get('front_image_url', ""))
-            article_item['front_image_url'] = [response.meta.get('front_image_url', '')]
+
+            if response.meta.get('front_image_url', ''):
+                article_item['front_image_url'] = [response.meta.get('front_image_url', '')]
+            else:
+                article_item['front_image_url'] = []
             # html = requests.get(parse.urljoin(response.url, f"/NewsAjax/GetAjaxNewsInfo?contentId={post_id}"))
             # j_data = json.loads(html.text)
             nums_url = parse.urljoin(response.url, f"/NewsAjax/GetAjaxNewsInfo?contentId={post_id}")
@@ -76,8 +80,6 @@ class JobboleSpider(scrapy.Spider):
             # praise_nums = j_data['DiggCount']
             # fav_nums = j_data['TotalViews']
             # comment_nums = j_data['CommentCount']
-
-
 
     def parse_nums(self, response):
 

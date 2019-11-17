@@ -8,6 +8,7 @@ from scrapy.pipelines.images import ImagesPipeline
 from scrapy import Request
 from scrapy.exceptions import DropItem
 import codecs
+import json
 
 
 class ArticlespiderPipeline(object):
@@ -18,8 +19,16 @@ class ArticlespiderPipeline(object):
 class JsonWithEncodingPipeline(object):
     # self-define json file export
 
-    def process_item(self, item, info):
-        pass
+    def __init__(self):
+        self.file = codecs.open('article.json', 'a', encoding='utf-8')
+
+    def process_item(self, item, spider):
+        lines = json.dumps(dict(item), ensure_ascii=False) + '\n'
+        self.file.write(lines)
+        return item
+
+    def spider_closed(self, spider):
+        self.file.close()
 
 
 class ArticleImagePipeline(ImagesPipeline):
