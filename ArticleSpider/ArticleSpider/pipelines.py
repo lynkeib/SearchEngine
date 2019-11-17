@@ -25,7 +25,7 @@ class Image(ImagesPipeline):
     }
 
     def get_media_requests(self, item, info):
-        for image_url in item['image_urls']:
+        for image_url in item['front_image_url']:
             self.default_headers['referer'] = image_url
             yield Request(image_url, headers=self.default_headers)
 
@@ -33,5 +33,5 @@ class Image(ImagesPipeline):
             image_paths = [x['path'] for ok, x in results if ok]
             if not image_paths:
                 raise DropItem("Item contains no images")
-            item['image_paths'] = image_paths
+            item['front_image_path'] = image_paths
             return item
