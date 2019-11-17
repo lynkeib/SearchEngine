@@ -70,7 +70,7 @@ ROBOTSTXT_OBEY = False
 ITEM_PIPELINES = {
     'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
     # 'scrapy.pipelines.images.ImagesPipeline': 1
-    'ArticleSpider.pipelines.Image': 1
+    'ArticleSpider.pipelines.ArticleImagePipeline': 1
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
