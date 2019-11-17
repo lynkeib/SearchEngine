@@ -69,7 +69,8 @@ ROBOTSTXT_OBEY = False
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'ArticleSpider.pipelines.ArticlespiderPipeline': 300,
-    'scrapy.pipelines.images.ImagesPipeline': 1
+    # 'scrapy.pipelines.images.ImagesPipeline': 1
+    'ArticleSpider.pipelines.Image': 1
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -95,5 +96,5 @@ ITEM_PIPELINES = {
 
 
 IMAGES_URLS_FIELD = "front_image_url"
-print(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'images'))
+# print(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'images'))
 IMAGES_STORE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'images')
