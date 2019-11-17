@@ -24,7 +24,6 @@ class JobboleSpider(scrapy.Spider):
         post_nodes = response.xpath('//div[@class="news_block"]')[:5]
 
         for post_node in post_nodes:
-            a = post_node
             image_url = post_node.xpath('div[@class="content"]/div[@class="entry_summary"]/a/img/@src').extract_first(
                 "")
             post_url = post_node.xpath('div[@class="content"]/h2[@class="news_entry"]/a/@href').extract_first("")
