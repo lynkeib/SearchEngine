@@ -72,6 +72,8 @@ ITEM_PIPELINES = {
     # 'scrapy.pipelines.images.ImagesPipeline': 1
     'ArticleSpider.pipelines.ArticleImagePipeline': 1,
     'ArticleSpider.pipelines.JsonWithEncodingPipeline': 2,
+    'ArticleSpider.pipelines.JsonExporterPipeline': 3
+
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

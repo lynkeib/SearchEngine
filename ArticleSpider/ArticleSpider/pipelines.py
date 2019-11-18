@@ -9,6 +9,7 @@ from scrapy import Request
 from scrapy.exceptions import DropItem
 import codecs
 import json
+from scrapy.exporters import JsonItemExporter
 
 
 class ArticlespiderPipeline(object):
@@ -28,6 +29,21 @@ class JsonWithEncodingPipeline(object):
         return item
 
     def spider_closed(self, spider):
+        self.file.close()
+
+
+class JsonExporterPipeline(object):
+    def __init__(self):
+        self.file = open("articleexport.json", 'wb')
+        self.exporter = JsonItemExporter(self.file, encoding='utf-8', ensure_ascii=False)
+        self.exporter.start_exporting()
+
+    def process_item(self, item, spider):
+        self.exporter.export_item(item)
+        return item
+
+    def spider_closed(self, spider):
+        self.exporter.finish_exporting()
         self.file.close()
 
 
