@@ -11,6 +11,7 @@ import codecs
 import json
 from scrapy.exporters import JsonItemExporter
 import MySQLdb
+import re
 
 
 class ArticlespiderPipeline(object):
@@ -59,22 +60,22 @@ class MysqlPipeline(object):
             values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
         params = list()
-        params.append(item.get('title',""))
+        params.append(item.get('title', ""))
         params.append(item.get('url', ""))
-        params.append(item.get('front_image_path', ""))
         params.append(item.get('url_object_id', ""))
         front_image = ",".join(item.get('front_image_url', []))
         params.append(front_image)
+        params.append(item.get('front_image_path', ""))
         params.append(item.get('parise_nums', 0))
         params.append(item.get('comment_nums', 0))
         params.append(item.get('fav_nums', 0))
         params.append(item.get('tags', ""))
         params.append(item.get('content', ""))
-        params.append(item.get('create_date', "1900-01-01"))
+        datetime = re.findall('.*?(\d{4}-\d{2}-\d{2}\s\d{1,2}:\d{1,2}).*', item.get('create_date', "1900-01-01"))[0]
+        params.append(datetime)
         self.cursor.execute(insert_sql, tuple(params))
         self.conn.commit()
         return item
-
 
 
 class ArticleImagePipeline(ImagesPipeline):
@@ -96,8 +97,14 @@ class ArticleImagePipeline(ImagesPipeline):
             yield Request(image_url, headers=self.default_headers)
 
     def item_completed(self, results, item, info):
-        image_file_paths = [x['path'] for ok, x in results if ok]
-        if not image_file_paths:
-            raise DropItem("Item contains no images")
-        item['front_image_path'] = image_file_paths
+        # image_file_paths = [x['path'] for ok, x in results if ok]
+        # if not image_file_paths:
+        #     raise DropItem("Item contains no images")
+        # item['front_image_path'] = image_file_paths
+        # return item
+        if "front_image_url" in item:
+            image_file_path = ""
+            for ok, value in results:
+                image_file_path = value['path']
+            item["front_image_path"] = image_file_path
         return item
