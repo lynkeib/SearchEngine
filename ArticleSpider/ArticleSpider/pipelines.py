@@ -12,6 +12,7 @@ import json
 from scrapy.exporters import JsonItemExporter
 import MySQLdb
 import re
+from twisted.enterprise import adbapi
 
 
 class ArticlespiderPipeline(object):
@@ -75,6 +76,59 @@ class MysqlPipeline(object):
         params.append(datetime)
         self.cursor.execute(insert_sql, tuple(params))
         self.conn.commit()
+        return item
+
+
+class MysqlTwistedPipeline(object):
+    @classmethod
+    def from_settings(cls, settings):
+        from MySQLdb.cursors import DictCursor
+        dbparms = {
+            "host": settings['MYSQL_HOST'],
+            "db": settings['MYSQL_DBNAME'],
+            'user': settings['MYSQL_USER'],
+            'passwd': settings['MYSQL_PASSWORD'],
+            'charset': "utf8",
+            'cursorclass': DictCursor,
+            'use_unicode': True
+        }
+
+        dbpool = adbapi.ConnectionPool("MySQLdb", **dbparms)
+        return cls(dbpool)
+
+    def __init__(self, dbpool):
+        self.dbpool = dbpool
+
+    def process_item(self, item, spider):
+        query = self.dbpool.runInteraction(self.do_insert, item)
+        query.addErrback(self.handle_error, item, spider)
+
+    def handle_error(self, failure, item, spider):
+        # failure will be passed automatically
+        print(failure)
+        # pass
+
+    def do_insert(self, cursor, item):
+        # cursor will be passed automatically
+        insert_sql = """
+                    insert into jobbole_article(title, url, url_object_id, front_image_url, front_image_path, parise_nums, comment_nums, fav_nums, tags, content, create_date)
+                    values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """
+        params = list()
+        params.append(item.get('title', ""))
+        params.append(item.get('url', ""))
+        params.append(item.get('url_object_id', ""))
+        front_image = ",".join(item.get('front_image_url', []))
+        params.append(front_image)
+        params.append(item.get('front_image_path', ""))
+        params.append(item.get('parise_nums', 0))
+        params.append(item.get('comment_nums', 0))
+        params.append(item.get('fav_nums', 0))
+        params.append(item.get('tags', ""))
+        params.append(item.get('content', ""))
+        datetime = re.findall('.*?(\d{4}-\d{2}-\d{2}\s\d{1,2}:\d{1,2}).*', item.get('create_date', "1900-01-01"))[0]
+        params.append(datetime)
+        cursor.execute(insert_sql, tuple(params))
         return item
 
 

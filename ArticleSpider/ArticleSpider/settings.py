@@ -73,7 +73,7 @@ ITEM_PIPELINES = {
     'ArticleSpider.pipelines.ArticleImagePipeline': 1,
     'ArticleSpider.pipelines.JsonWithEncodingPipeline': 2,
     'ArticleSpider.pipelines.JsonExporterPipeline': 3,
-    'ArticleSpider.pipelines.MysqlPipeline': 4
+    'ArticleSpider.pipelines.MysqlTwistedPipeline': 4
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -101,3 +101,8 @@ ITEM_PIPELINES = {
 IMAGES_URLS_FIELD = "front_image_url"
 # print(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'images'))
 IMAGES_STORE = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'images')
+
+MYSQL_HOST = "127.0.0.1"
+MYSQL_DBNAME = "article_spider"
+MYSQL_USER = 'root'
+MYSQL_PASSWORD = '123456'
