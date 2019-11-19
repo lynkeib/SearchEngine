@@ -21,7 +21,7 @@ class JobboleSpider(scrapy.Spider):
         2. get the next page url
         '''
 
-        post_nodes = response.xpath('//div[@class="news_block"]')
+        post_nodes = response.xpath('//div[@class="news_block"]')[0:1]
 
         for post_node in post_nodes:
             image_url = post_node.xpath('div[@class="content"]/div[@class="entry_summary"]/a/img/@src').extract_first(
