@@ -106,7 +106,6 @@ class MysqlTwistedPipeline(object):
     def handle_error(self, failure, item, spider):
         # failure will be passed automatically
         print(failure)
-        # pass
 
     def do_insert(self, cursor, item):
         # cursor will be passed automatically
