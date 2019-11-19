@@ -10,6 +10,7 @@ from scrapy.exceptions import DropItem
 import codecs
 import json
 from scrapy.exporters import JsonItemExporter
+import MySQLdb
 
 
 class ArticlespiderPipeline(object):
@@ -45,6 +46,35 @@ class JsonExporterPipeline(object):
     def spider_closed(self, spider):
         self.exporter.finish_exporting()
         self.file.close()
+
+
+class MysqlPipeline(object):
+    def __init__(self):
+        self.conn = MySQLdb.connect("127.0.0.1", 'root', '123456', 'article_spider', charset='utf8', use_unicode=True)
+        self.cursor = self.conn.cursor()
+
+    def process_item(self, item, spider):
+        insert_sql = """
+            insert into jobbole_article(title, url, url_object_id, front_image_url, front_image_path, parise_nums, comment_nums, fav_nums, tags, content, create_date)
+            values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        params = list()
+        params.append(item.get('title',""))
+        params.append(item.get('url', ""))
+        params.append(item.get('front_image_path', ""))
+        params.append(item.get('url_object_id', ""))
+        front_image = ",".join(item.get('front_image_url', []))
+        params.append(front_image)
+        params.append(item.get('parise_nums', 0))
+        params.append(item.get('comment_nums', 0))
+        params.append(item.get('fav_nums', 0))
+        params.append(item.get('tags', ""))
+        params.append(item.get('content', ""))
+        params.append(item.get('create_date', "1900-01-01"))
+        self.cursor.execute(insert_sql, tuple(params))
+        self.conn.commit()
+        return item
+
 
 
 class ArticleImagePipeline(ImagesPipeline):

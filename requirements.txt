@@ -3,3 +3,4 @@ lxml
 twisted
 pillow
 requests
+mysqlclient
