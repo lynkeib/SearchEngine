@@ -23,7 +23,7 @@ class JobboleSpider(scrapy.Spider):
         2. get the next page url
         '''
 
-        post_nodes = response.xpath('//div[@class="news_block"]')[:1]
+        post_nodes = response.xpath('//div[@class="news_block"]')
 
         for post_node in post_nodes:
             image_url = post_node.xpath('div[@class="content"]/div[@class="entry_summary"]/a/img/@src').extract_first(
@@ -86,10 +86,13 @@ class JobboleSpider(scrapy.Spider):
             item_loader.add_value("url", response.url)
             item_loader.add_value("front_image_url", response.meta.get('front_image_url', ''))
 
-            article_item = item_loader.load_item()
+            # article_item = item_loader.load_item()
 
+            # yield Request(url=parse.urljoin(response.url, nums_url),
+            #               meta={'article_item': article_item},
+            #               callback=self.parse_nums)
             yield Request(url=parse.urljoin(response.url, nums_url),
-                          meta={'article_item': article_item},
+                          meta={'article_item': item_loader, 'url': response.url},
                           callback=self.parse_nums)
 
             # praise_nums = j_data['DiggCount']
@@ -98,16 +101,25 @@ class JobboleSpider(scrapy.Spider):
 
     def parse_nums(self, response):
 
-        article_item = response.meta.get('article_item', "")
-
+        # article_item = response.meta.get('article_item', "")
+        #         #
+        #         # j_data = json.loads(response.text)
+        #         # praise_nums = j_data['DiggCount']
+        #         # fav_nums = j_data['TotalView']
+        #         # comment_nums = j_data['CommentCount']
+        #         #
+        #         # article_item['praise_nums'] = praise_nums
+        #         # article_item['fav_nums'] = fav_nums
+        #         # article_item['comment_nums'] = comment_nums
+        #         # article_item['url_object_id'] = get_md5(article_item['url'])
+        item_loader = response.meta.get('article_item', "")
         j_data = json.loads(response.text)
-        praise_nums = j_data['DiggCount']
-        fav_nums = j_data['TotalView']
-        comment_nums = j_data['CommentCount']
 
-        article_item['praise_nums'] = praise_nums
-        article_item['fav_nums'] = fav_nums
-        article_item['comment_nums'] = comment_nums
-        article_item['url_object_id'] = get_md5(article_item['url'])
+        item_loader.add_value('praise_nums', j_data['DiggCount'])
+        item_loader.add_value('fav_nums', j_data['TotalView'])
+        item_loader.add_value('comment_nums', j_data['CommentCount'])
+        item_loader.add_value('url_object_id', get_md5(response.meta.get('url', "")))
+
+        article_item = item_loader.load_item()
 
         yield article_item
