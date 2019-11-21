@@ -5,6 +5,7 @@ import re
 
 import scrapy
 from scrapy import *
+from scrapy.loader import ItemLoader
 import requests
 from ..items import JobBoleArticleItem
 from ..utils.common import *
@@ -48,31 +49,44 @@ class JobboleSpider(scrapy.Spider):
 
         match_re = re.match(".*?(\d+)", response.url)
         if match_re:
-            article_item = JobBoleArticleItem()
+            # article_item = JobBoleArticleItem()
 
-            title = response.xpath('//div[@id="news_title"]/a/text()').extract_first("")
-
-            create_date = response.xpath('//div[@id="news_info"]//span[@class="time"]/text()').extract_first("")
-            content = response.xpath('//div[@id="news_content"]').extract()[0]
-            tag_list = response.xpath('//div[@class="news_tags"]/a/text()').extract()
-            tags = ",".join(tag_list)
-
+            # title = response.xpath('//div[@id="news_title"]/a/text()').extract_first("")
+            #
+            # create_date = response.xpath('//div[@id="news_info"]//span[@class="time"]/text()').extract_first("")
+            # content = response.xpath('//div[@id="news_content"]').extract()[0]
+            # tag_list = response.xpath('//div[@class="news_tags"]/a/text()').extract()
+            # tags = ",".join(tag_list)
+            #
             post_id = match_re.group(1)
-
-            article_item['title'] = title
-            article_item['create_date'] = create_date
-            article_item['content'] = content
-            article_item['tags'] = tags
-            article_item['url'] = response.url
-            print('front_image_url is ', response.meta.get('front_image_url', ""))
-
-            if response.meta.get('front_image_url', ''):
-                article_item['front_image_url'] = [response.meta.get('front_image_url', '')]
-            else:
-                article_item['front_image_url'] = []
-            # html = requests.get(parse.urljoin(response.url, f"/NewsAjax/GetAjaxNewsInfo?contentId={post_id}"))
+            #
+            # article_item['title'] = title
+            # article_item['create_date'] = create_date
+            # article_item['content'] = content
+            # article_item['tags'] = tags
+            # article_item['url'] = response.url
+            # # print('front_image_url is ', response.meta.get('front_image_url', ""))
+            #
+            # if response.meta.get('front_image_url', ''):
+            #     article_item['front_image_url'] = [response.meta.get('front_image_url', '')]
+            # else:
+            #     article_item['front_image_url'] = []
+            # # html = requests.get(parse.urljoin(response.url, f"/NewsAjax/GetAjaxNewsInfo?contentId={post_id}"))
             # j_data = json.loads(html.text)
             nums_url = parse.urljoin(response.url, f"/NewsAjax/GetAjaxNewsInfo?contentId={post_id}")
+
+            item_loader = ItemLoader(item=JobBoleArticleItem(), response=response)
+
+            item_loader.add_xpath('title', '//div[@id="news_title"]/a/text()')
+            item_loader.add_xpath('create_date', '//div[@id="news_info"]//span[@class="time"]/text()')
+            item_loader.add_xpath('content', '//div[@id="news_content"]')
+            item_loader.add_xpath('tag_list', '//div[@class="news_tags"]/a/text()')
+
+            item_loader.add_value("url", response.url)
+            item_loader.add_value("url", response.meta.get('front_image_url', ''))
+
+            article_item = item_loader.load_item()
+
             yield Request(url=parse.urljoin(response.url, nums_url),
                           meta={'article_item': article_item},
                           callback=self.parse_nums)
