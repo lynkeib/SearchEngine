@@ -13,11 +13,17 @@ from scrapy.exporters import JsonItemExporter
 import MySQLdb
 import re
 from twisted.enterprise import adbapi
+from scrapy.loader import ItemLoader
+from scrapy.loader.processors import TakeFirst
 
 
 class ArticlespiderPipeline(object):
     def process_item(self, item, spider):
         return item
+
+
+class ArticleItemLoader(ItemLoader):
+    default_output_processor = TakeFirst()
 
 
 class JsonWithEncodingPipeline(object):
@@ -72,8 +78,9 @@ class MysqlPipeline(object):
         params.append(item.get('fav_nums', 0))
         params.append(item.get('tags', ""))
         params.append(item.get('content', ""))
-        datetime = re.findall('.*?(\d{4}-\d{2}-\d{2}\s\d{1,2}:\d{1,2}).*', item.get('create_date', "1900-01-01"))[0]
-        params.append(datetime)
+        # datetime = re.findall('.*?(\d{4}-\d{2}-\d{2}\s\d{1,2}:\d{1,2}).*', item.get('create_date', "1900-01-01"))[0]
+        # params.append(datetime)
+        params.append(item.get('create_date', "1900-01-01"))
         self.cursor.execute(insert_sql, tuple(params))
         self.conn.commit()
         return item

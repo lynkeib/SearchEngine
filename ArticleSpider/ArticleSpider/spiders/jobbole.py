@@ -6,6 +6,7 @@ import re
 import scrapy
 from scrapy import *
 from scrapy.loader import ItemLoader
+from ..pipelines import ArticleItemLoader
 import requests
 from ..items import JobBoleArticleItem
 from ..utils.common import *
@@ -22,7 +23,7 @@ class JobboleSpider(scrapy.Spider):
         2. get the next page url
         '''
 
-        post_nodes = response.xpath('//div[@class="news_block"]')
+        post_nodes = response.xpath('//div[@class="news_block"]')[:1]
 
         for post_node in post_nodes:
             image_url = post_node.xpath('div[@class="content"]/div[@class="entry_summary"]/a/img/@src').extract_first(
@@ -75,15 +76,15 @@ class JobboleSpider(scrapy.Spider):
             # j_data = json.loads(html.text)
             nums_url = parse.urljoin(response.url, f"/NewsAjax/GetAjaxNewsInfo?contentId={post_id}")
 
-            item_loader = ItemLoader(item=JobBoleArticleItem(), response=response)
+            item_loader = ArticleItemLoader(item=JobBoleArticleItem(), response=response)
 
             item_loader.add_xpath('title', '//div[@id="news_title"]/a/text()')
             item_loader.add_xpath('create_date', '//div[@id="news_info"]//span[@class="time"]/text()')
             item_loader.add_xpath('content', '//div[@id="news_content"]')
-            item_loader.add_xpath('tag_list', '//div[@class="news_tags"]/a/text()')
+            item_loader.add_xpath('tags', '//div[@class="news_tags"]/a/text()')
 
             item_loader.add_value("url", response.url)
-            item_loader.add_value("url", response.meta.get('front_image_url', ''))
+            item_loader.add_value("front_image_url", response.meta.get('front_image_url', ''))
 
             article_item = item_loader.load_item()
 
