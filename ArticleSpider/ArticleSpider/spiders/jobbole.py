@@ -84,7 +84,10 @@ class JobboleSpider(scrapy.Spider):
             item_loader.add_xpath('tags', '//div[@class="news_tags"]/a/text()')
 
             item_loader.add_value("url", response.url)
-            item_loader.add_value("front_image_url", response.meta.get('front_image_url', ''))
+            if response.meta.get('front_image_url', []):
+                item_loader.add_value("front_image_url", response.meta.get('front_image_url', ''))
+            else:
+                item_loader.add_value("front_image_url", [])
 
             # article_item = item_loader.load_item()
 
