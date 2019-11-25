@@ -5,3 +5,4 @@ pillow
 requests
 mysqlclient
 openssl==1.0.2p
+selenium
