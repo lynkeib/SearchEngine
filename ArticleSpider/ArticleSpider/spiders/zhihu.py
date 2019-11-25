@@ -14,4 +14,9 @@ class ZhihuSpider(scrapy.Spider):
     def start_requests(self):
         browser = webdriver.Chrome(executable_path="/Users/chengyinliu/D/DevelopmentProject/chromedriver")
         browser.get('https://www.zhihu.com/signin')
-        browser.find_element_by_css_selector("")
+        browser.find_element_by_xpath("//div[@class='SignFlow-account']//input[@class='Input']").send_keys(
+            "15810952153")
+        browser.find_element_by_xpath("//div[@class='SignFlow-password']//input[@class='Input']").send_keys("123456")
+
+        browser.find_element_by_xpath(
+            "//button[@class='Button SignFlow-submitButton Button--primary Button--blue']").click()
