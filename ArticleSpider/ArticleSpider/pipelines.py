@@ -154,9 +154,10 @@ class ArticleImagePipeline(ImagesPipeline):
     default_headers = {'referer': "https://news.cnblogs.com/"}
 
     def get_media_requests(self, item, info):
-        for image_url in item['front_image_url']:
-            self.default_headers['referer'] = image_url
-            yield Request(image_url, headers=self.default_headers)
+        if 'front_image_url' in item:
+            for image_url in item['front_image_url']:
+                self.default_headers['referer'] = image_url
+                yield Request(image_url, headers=self.default_headers)
 
     def item_completed(self, results, item, info):
         # image_file_paths = [x['path'] for ok, x in results if ok]

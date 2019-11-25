@@ -28,12 +28,14 @@ class JobboleSpider(scrapy.Spider):
         for post_node in post_nodes:
             image_url = post_node.xpath('div[@class="content"]/div[@class="entry_summary"]/a/img/@src').extract_first(
                 "")
+            if image_url.startswith("//"):
+                image_url = 'https:' + image_url
             post_url = post_node.xpath('div[@class="content"]/h2[@class="news_entry"]/a/@href').extract_first("")
             yield Request(url=parse.urljoin(response.url, post_url),
                           meta={"front_image_url": image_url},
                           callback=self.parse_detail)  # self-defined callback method
 
-            # Extract next page and pass to scrapy to download
+            #Extract next page and pass to scrapy to download
             # next_url = response.xpath('//div[@class="pager"]/a[last()]/text()').extract_first("")
             # # next_url = response.xpath('//a[contains(test(), "Next >"")]/@href').extract_first("")
             # if next_url == "Next >":
@@ -42,9 +44,9 @@ class JobboleSpider(scrapy.Spider):
             #                   callback=self.parse)  # self-defined callback method
             # next_url = response.xpath('//div[@class="pager"]/a[last()]/text()').extract_first("")
 
-            # next_url = response.xpath('//a[contains(text(), "Next >")]/@href').extract_first("")
-            # yield Request(url=parse.urljoin(response.url, next_url),
-            #               callback=self.parse)  # self-defined callback method
+            next_url = response.xpath('//a[contains(text(), "Next >")]/@href').extract_first("")
+            yield Request(url=parse.urljoin(response.url, next_url),
+                          callback=self.parse)  # self-defined callback method
 
     def parse_detail(self, response):
 
@@ -84,10 +86,14 @@ class JobboleSpider(scrapy.Spider):
             item_loader.add_xpath('tags', '//div[@class="news_tags"]/a/text()')
 
             item_loader.add_value("url", response.url)
+
             if response.meta.get('front_image_url', []):
-                item_loader.add_value("front_image_url", response.meta.get('front_image_url', ''))
-            else:
-                item_loader.add_value("front_image_url", [])
+                item_loader.add_value("front_image_url", response.meta.get('front_image_url', []))
+
+            # if not response.meta.get('front_image_url'):
+            #     item_loader.add_value("front_image_url", response.meta.get('front_image_url', ''))
+            # else:
+            #     item_loader.add_value("front_image_url", [])
 
             # article_item = item_loader.load_item()
 
