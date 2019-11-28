@@ -5,6 +5,10 @@ import time
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 
+'''
+    generate a new spider: scrapy genspider mydomain mydomain.com
+'''
+
 
 class ZhihuSpider(scrapy.Spider):
     name = 'zhihu'
