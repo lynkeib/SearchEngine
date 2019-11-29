@@ -61,6 +61,7 @@ class ZhihuSpider(scrapy.Spider):
         #     "//button[@class='Button SignFlow-submitButton Button--primary Button--blue']").location
         #
         # m.click(loc['x'], loc['y'])
+
         browser.get("https://www.zhihu.com")
         cookies = browser.get_cookies()
         pickle.dump(cookies, open("../../cookies/zhihu.cookie", 'wb'))
