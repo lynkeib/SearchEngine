@@ -4,6 +4,8 @@ from selenium import webdriver
 import time
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
+from decouple import config
+from mouse import move
 
 '''
     generate a new spider: scrapy genspider mydomain mydomain.com
@@ -21,7 +23,7 @@ class ZhihuSpider(scrapy.Spider):
     def start_requests(self):
         # Initiate Chrome manually
         '''
-        terminal command: --remote-debugging-port=9222
+        terminal command: cd /Applications/Google\ Chrome.app/Contents/MacOS/ &Google\ Chrome --remote-debugging-port=9222
         '''
 
         chrome_option = Options()
@@ -40,12 +42,13 @@ class ZhihuSpider(scrapy.Spider):
             Keys.CONTROL + 'a')
 
         browser.find_element_by_xpath("//div[@class='SignFlow-account']//input[@class='Input']").send_keys(
-            "15810952153")
+            config('ZHIHU_USERNAME'))
 
         browser.find_element_by_xpath("//div[@class='SignFlow-password']//input[@class='Input']").send_keys(
             Keys.CONTROL + 'a')
 
-        browser.find_element_by_xpath("//div[@class='SignFlow-password']//input[@class='Input']").send_keys("123456")
+        browser.find_element_by_xpath("//div[@class='SignFlow-password']//input[@class='Input']").send_keys(
+            config('ZHIHU_PASSWORD'))
 
         browser.find_element_by_xpath(
             "//button[@class='Button SignFlow-submitButton Button--primary Button--blue']").click()
