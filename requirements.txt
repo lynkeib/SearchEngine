@@ -8,3 +8,4 @@ openssl==1.0.2p
 selenium
 python-decouple
 mouse
+PyUserInput

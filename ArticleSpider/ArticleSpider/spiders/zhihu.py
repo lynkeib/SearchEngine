@@ -5,7 +5,7 @@ import time
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 from decouple import config
-from mouse import move
+from pymouse import PyMouse
 
 '''
     generate a new spider: scrapy genspider mydomain mydomain.com
@@ -25,6 +25,8 @@ class ZhihuSpider(scrapy.Spider):
         '''
         terminal command: cd /Applications/Google\ Chrome.app/Contents/MacOS/ &Google\ Chrome --remote-debugging-port=9222
         '''
+
+        m = PyMouse()
 
         chrome_option = Options()
         chrome_option.add_argument("--disable-extensions")
@@ -50,6 +52,14 @@ class ZhihuSpider(scrapy.Spider):
         browser.find_element_by_xpath("//div[@class='SignFlow-password']//input[@class='Input']").send_keys(
             config('ZHIHU_PASSWORD'))
 
-        browser.find_element_by_xpath(
-            "//button[@class='Button SignFlow-submitButton Button--primary Button--blue']").click()
+        # browser.find_element_by_xpath(
+        #     "//button[@class='Button SignFlow-submitButton Button--primary Button--blue']").click()
+
+        loc = browser.find_element_by_xpath(
+            "//button[@class='Button SignFlow-submitButton Button--primary Button--blue']").location
+
+        m.click(loc['x'], loc['y'])
+
+        print()
+
         time.sleep(60)
