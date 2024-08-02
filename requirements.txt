@@ -9,7 +9,7 @@ selenium
 python-decouple
 mouse
 PyUserInput
-Keras==2.0.1
+Keras==2.13.1
 scikit-learn==0.18.1
 tensorflow
 h5py==2.6.0
